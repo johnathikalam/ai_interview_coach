@@ -4,28 +4,28 @@ from config import settings
 
 class InterviewAgent:
     def __init__(self):
-        self.llm = ChatOpenAI(model="gpt-4o-mini", openai_api_key=settings.openai_api_key)  # or your preferred model
-        self.questions = [
-            "Explain OOP concepts in Java with examples.",
-            "What is RAG (Retrieval Augmented Generation) in GenAI?",
-            "How do you optimize Python code for ML pipelines?",
-            "Explain REST vs GraphQL in a real-world project."
-        ]
-        self.index = 0
+        self.llm = ChatOpenAI(model="gpt-4o-mini", openai_api_key=settings.openai_api_key)
 
-    def get_question(self):
-        if self.index < len(self.questions):
-            return self.questions[self.index]
-        return "Interview complete. Great job!"
-
-    def evaluate_answer(self, answer):
+    def generate_questions(self, role, difficulty, num_questions=5):
+        """Generate interview questions dynamically"""
         prompt = ChatPromptTemplate.from_template(
-            "You are an interview coach. Evaluate the following answer and give short feedback.\n"
-            "Question: {question}\nAnswer: {answer}\n\nGive feedback in 2-3 sentences."
+            "You are an expert interviewer.\n"
+            "Generate {num} {difficulty}-level interview questions for the role of {role}.\n"
+            "Return the questions as a numbered list, without answers."
         )
-        feedback = self.llm(prompt.format_messages(
-            question=self.questions[self.index], answer=answer
-        )).content
-
-        self.index += 1
-        return feedback, self.get_question()
+        response = self.llm(prompt.format_messages(
+            role=role, difficulty=difficulty, num=num_questions
+        ))
+        
+        questions = [q.strip(" .") for q in response.content.split("\n") if q.strip()]
+        return questions
+    
+    def evaluate_answer(self, question, answer):
+        """Generate feedback for a given answer"""
+        prompt = ChatPromptTemplate.from_template(
+            "You are an interview coach. Evaluate the candidate's answer.\n"
+            "Question: {question}\nAnswer: {answer}\n"
+            "Provide short, constructive feedback (2-3 sentences)."
+        )
+        response = self.llm(prompt.format_messages(question=question, answer=answer))
+        return response.content
