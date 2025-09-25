@@ -60,7 +60,7 @@ Server will start at `http://127.0.0.1:8000`
 
 ---
 
-## 📡 API Usage
+## API Usage
 
 ### 1. Start a new session
 ```http
