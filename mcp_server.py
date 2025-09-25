@@ -1,5 +1,6 @@
 import uuid
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_mcp import FastApiMCP
 from interview_agent import InterviewAgent
 from pydantic import BaseModel
@@ -17,6 +18,14 @@ class History(BaseModel):
     session_id: str
     
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React app
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 mcp = FastApiMCP(app, "AI Interview Coach")
 mcp.mount()
