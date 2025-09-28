@@ -20,12 +20,33 @@ class InterviewAgent:
         questions = [q.strip(" .") for q in response.content.split("\n") if q.strip()]
         return questions
     
+    # def evaluate_answer(self, question, answer):
+    #     """Generate feedback for a given answer"""
+    #     prompt = ChatPromptTemplate.from_template(
+    #         "You are an interview coach. Evaluate the candidate's answer.\n"
+    #         "Question: {question}\nAnswer: {answer}\n"
+    #         "Provide short, constructive feedback (2-3 sentences)."
+    #     )
+    #     response = self.llm(prompt.format_messages(question=question, answer=answer))
+    #     return response.content
+
     def evaluate_answer(self, question, answer):
-        """Generate feedback for a given answer"""
-        prompt = ChatPromptTemplate.from_template(
-            "You are an interview coach. Evaluate the candidate's answer.\n"
-            "Question: {question}\nAnswer: {answer}\n"
-            "Provide short, constructive feedback (2-3 sentences)."
-        )
-        response = self.llm(prompt.format_messages(question=question, answer=answer))
-        return response.content
+        prompt = f"""
+        You are an interview evaluator.
+        Question: {question}
+        Candidate's Answer: {answer}
+
+        1. Give a score from 0 to 10 based on correctness, depth, and clarity.
+        2. Provide a short feedback explaining the score.
+        3. Point out specific areas to improve if applicable.
+
+        Respond in JSON:
+        {{
+          "score": <0-10>,
+          "feedback": "<brief feedback>",
+          "improvement": "<suggestions for improvement>"
+        }}
+        """
+
+        response = self.llm.predict(prompt)
+        return response

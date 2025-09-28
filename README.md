@@ -2,11 +2,12 @@
 
 ## Overview
 The **AI Interview Coach** is a session-based interview simulator built with **FastAPI, MCP, and LangChain**.  
-It dynamically generates interview questions based on the **role** and **difficulty level** specified by the user.  
+It dynamically generates interview questions based on the **role**, **difficulty level** and **Number of questions** specified by the user.  
 Each interview is tracked as a **session** where:  
 - The system asks role-specific, difficulty-adjusted questions.  
 - Users provide answers, and the AI gives **constructive feedback**.  
 - All **questions, answers, feedback, and scores** are logged for review.  
+- At the end, generates a **score report + feedback summary + improvement areas**
 
 This project can be used as a **guidance tool for interview preparation**.  
 
@@ -19,7 +20,7 @@ This project can be used as a **guidance tool for interview preparation**.
 - **Dynamic question generation** -> Questions generated on the fly using LLMs  
 - **Feedback system** -> AI provides 2–3 sentence feedback per answer  
 - **History tracking** -> Review all Q&A after the session  
-
+- **Summary Generator** -> Generate a summary containing score, feedback and improvement areas.
 ---
 
 ## Tech Stack
@@ -28,6 +29,7 @@ This project can be used as a **guidance tool for interview preparation**.
 - **FastAPI-MCP** -> MCP integration  
 - **LangChain + OpenAI** -> AI model orchestration  
 - **Pydantic** -> Request/response validation  
+- **Uvicorn** -> ASGI server
 
 ---
 
@@ -51,7 +53,13 @@ venv\Scripts\activate      # On Windows
 pip install -r requirements.txt
 ```
 
-### 4. Run the server
+### 4. Set environment variables
+Create a `.env` file:
+```
+OPENAI_API_KEY=your_api_key_here
+```
+
+### 5. Run the server
 ```bash
 python app.py
 ```
@@ -126,6 +134,29 @@ POST /get_history
       "answer": "LSTMs are a type of RNN...",
       "feedback": "Good explanation. Mention vanishing gradients next time."
     }
+  ]
+}
+```
+
+### 4. Get Final Report (Scoring & Feedback)
+```http
+POST /get_summary
+```
+**Request:**
+```json
+{
+  "session_id": "1234-5678"
+}
+```
+**Response:**
+```json
+{
+  "total_score": 15,
+  "avg_score": 7.5,
+  "summary": "Candidate demonstrated solid fundamentals...",
+  "improvements": [
+    "Work on decorators with practical examples",
+    "Provide more real-world coding scenarios"
   ]
 }
 ```
